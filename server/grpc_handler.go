@@ -43,11 +43,23 @@ func (s *Server) GetMenu(menurequest *pb.MenuRequest,gr  grpc.ServerStreamingSer
 	return nil
 }
 func (s *Server) PlaceOrder(ctx context.Context, order *pb.Order) (*pb.Receipt, error) {
-	return &pb.Receipt{},nil
+	fmt.Println("Receive Order",order)
+	return &pb.Receipt{
+		Id: "Service Store Id 1234",
+		Name: order.Name,
+	},nil
 }
 func (s *Server) CheckStatus(ctx context.Context, rceipt *pb.Receipt) (*pb.OrderStatus, error) {
-	return &pb.OrderStatus{},nil
+	fmt.Println("Check Status",rceipt)
+	return &pb.OrderStatus{
+		Id: "Order of the day 1",
+		Status: "Order is ready",
+	},nil
 }
 func (s *Server) CancelOrder(ctx context.Context, receipt *pb.Receipt) (*pb.Receipt, error) {
-	return &pb.Receipt{},nil
+	fmt.Println("Cancel Order",receipt)
+	return &pb.Receipt{
+		Id: "Service Store Id 1234",
+		Name: receipt.Name,
+	},nil
 }
