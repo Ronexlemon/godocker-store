@@ -1,1 +1,34 @@
-syt
+syntax =
+"proto3";
+
+option go_package = "github.com/ronexlemon/godocker/common/api";
+
+
+message MenuRequest{}
+//order message
+message Order{
+    string id = 1;
+    string name = 2;
+}
+message OrderMenu{
+    string id = 1;
+    repeated Order orders=2;
+
+}
+message Receipt{
+    string id = 1;
+    string name = 2;
+}
+//orderStatus
+message OrderStatus{
+    string id = 1;
+    string status = 2;}
+
+service StoreService {
+    rpc getMenu(MenuRequest) returns ( stream OrderMenu) ;
+    rpc placeOrder(Order) returns (Receipt);
+    rpc checkStatus(Receipt) returns (OrderStatus);
+    rpc cancelOrder(Receipt) returns (Receipt);
+    
+
+}
