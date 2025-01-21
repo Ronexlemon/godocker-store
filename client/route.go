@@ -8,9 +8,9 @@ import (
 	pb "github.com/ronexlemon/godocker/common/api"
 )
 
-// start mux serve
+
 type clientHandler struct {
-	//mux
+	
 	client pb.StoreServiceClient
 }
 
