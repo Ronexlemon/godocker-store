@@ -21,6 +21,7 @@ func NewClientHandler(client pb.StoreServiceClient) *clientHandler {
 
 func (c *clientHandler) registerRoute(mux *http.ServeMux) {
 	mux.HandleFunc("GET /api/menu", c.GetMenuOrders)
+	mux.HandleFunc("POST /api/order",c.placeOrder)
 
 }
 func (c *clientHandler) GetMenuOrders(w http.ResponseWriter, r *http.Request) {
@@ -56,4 +57,23 @@ func (c *clientHandler) GetMenuOrders(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to encode response: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
+}
+
+
+//function placeOrder
+
+
+func (c *clientHandler) placeOrder(w http.ResponseWriter, r *http.Request){
+	// Parse the JSON request body
+	var order pb.Order
+	if err := json.NewDecoder(r.Body).Decode(&order); err != nil {
+		http.Error(w, "Failed to parse order: "+err.Error(), http.StatusBadRequest)
+		return
+		}
+		// Call the gRPC PlaceOrder method
+		receipt, err := c.client.PlaceOrder(r.Context(), &pb.Order{Id: order.Id,Name: order.Name})
+		if err !=nil{
+			http.Error(w,"Failed to place Order"+err.Error(),http.StatusInternalServerError)
+		}
+		json.NewEncoder(w).Encode(receipt)
 }
