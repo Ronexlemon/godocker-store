@@ -11,7 +11,7 @@ import (
 
 var (
 	serverAddress = "localhost:9001"
-	httpAddr = ":9090"
+	httpAddr = ":8080"
 )
 
 func main(){

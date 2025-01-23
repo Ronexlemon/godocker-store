@@ -8,9 +8,7 @@ import (
 	pb "github.com/ronexlemon/godocker/common/api"
 )
 
-
 type clientHandler struct {
-	
 	client pb.StoreServiceClient
 }
 
@@ -21,7 +19,8 @@ func NewClientHandler(client pb.StoreServiceClient) *clientHandler {
 
 func (c *clientHandler) registerRoute(mux *http.ServeMux) {
 	mux.HandleFunc("GET /api/menu", c.GetMenuOrders)
-	mux.HandleFunc("POST /api/order",c.placeOrder)
+	mux.HandleFunc("POST /api/order", c.placeOrder)
+	mux.HandleFunc("POST /api/order/status", c.checkStatus)
 
 }
 func (c *clientHandler) GetMenuOrders(w http.ResponseWriter, r *http.Request) {
@@ -59,21 +58,36 @@ func (c *clientHandler) GetMenuOrders(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-
 //function placeOrder
 
-
-func (c *clientHandler) placeOrder(w http.ResponseWriter, r *http.Request){
+func (c *clientHandler) placeOrder(w http.ResponseWriter, r *http.Request) {
 	// Parse the JSON request body
 	var order pb.Order
 	if err := json.NewDecoder(r.Body).Decode(&order); err != nil {
 		http.Error(w, "Failed to parse order: "+err.Error(), http.StatusBadRequest)
 		return
-		}
-		// Call the gRPC PlaceOrder method
-		receipt, err := c.client.PlaceOrder(r.Context(), &pb.Order{Id: order.Id,Name: order.Name})
-		if err !=nil{
-			http.Error(w,"Failed to place Order"+err.Error(),http.StatusInternalServerError)
-		}
-		json.NewEncoder(w).Encode(receipt)
+	}
+	// Call the gRPC PlaceOrder method
+	receipt, err := c.client.PlaceOrder(r.Context(), &pb.Order{Id: order.Id, Name: order.Name})
+	if err != nil {
+		http.Error(w, "Failed to place Order"+err.Error(), http.StatusInternalServerError)
+	}
+	json.NewEncoder(w).Encode(receipt)
+}
+
+// check status
+func (c *clientHandler) checkStatus(w http.ResponseWriter, r *http.Request) {
+	var receipt pb.Receipt
+	if err := json.NewDecoder(r.Body).Decode(&receipt); err != nil {
+		http.Error(w, "Failed to parse receipt: "+err.Error(), http.StatusBadRequest)
+		return
+	}
+	//call the grpc method for status
+	status, err := c.client.CheckStatus(r.Context(), &pb.Receipt{Id: receipt.Id, Name: receipt.Name})
+	if err != nil {
+		http.Error(w, "Failed to check status: "+err.Error(), http.StatusInternalServerError)
+		return
+
+	}
+	json.NewEncoder(w).Encode(status)
 }
